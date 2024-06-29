@@ -39,7 +39,7 @@ namespace JobPortal.Controllers
             else
             {
                 ViewBag.BT = "Create";
-                return View();
+                return View(new Employee());
             }
         }
 
