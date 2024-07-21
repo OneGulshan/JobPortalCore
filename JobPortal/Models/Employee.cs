@@ -13,8 +13,8 @@ namespace JobPortal.Models
         public int SkillsId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public long Mobno { get; set; }
-        public int Age { get; set; }
+        public long? Mobno { get; set; }
+        public int? Age { get; set; }
         public int CountryId { get; set; }
         public int StateId { get; set; }
         public int CityId { get; set; }

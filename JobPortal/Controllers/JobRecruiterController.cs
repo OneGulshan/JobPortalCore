@@ -11,8 +11,7 @@ namespace JobPortal.Controllers
 
         public IActionResult Index()
         {
-            var result = _context.Companies.ToList();
-            return View(result);
+            return View(_context.Companies.ToList());
         }
 
         [HttpGet]
@@ -22,9 +21,8 @@ namespace JobPortal.Controllers
 
             if (id > 0)
             {
-                var Company = _context.Companies.Where(_ => _.Id == id).FirstOrDefault();
                 ViewBag.Bt = "Update";
-                return View(Company);
+                return View(_context.Companies.Where(_ => _.Id == id).FirstOrDefault());
             }
             else
             {
@@ -33,12 +31,7 @@ namespace JobPortal.Controllers
             }
         }
 
-        public JsonResult GetCategory(int JPId)
-        {
-            var JobProfileList = _context.JobProfile.Where(_ => _.JPId == JPId).ToList();
-            ViewBag.JobProfile = new SelectList(JobProfileList, "JPId", "Name");
-            return Json(ViewBag.JobProfile);
-        }
+        public JsonResult GetCategory(int JPId) => Json(ViewBag.JobProfile = new SelectList(_context.JobProfile.Where(_ => _.JPId == JPId).ToList(), "JPId", "Name"));
 
         [HttpPost]
         public IActionResult Create(Company company, int id)

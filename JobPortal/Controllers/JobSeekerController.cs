@@ -15,11 +15,7 @@ namespace JobPortal.Controllers
         private readonly AppDbContext _context = context;
         private readonly IWebHostEnvironment _environment = environment;
 
-        public IActionResult Index()
-        {
-            var result = _context.Employees.ToList();
-            return View(result);
-        }
+        public IActionResult Index() => View(_context.Employees.ToList());
 
         [HttpGet]
         public IActionResult Create(int id)
@@ -43,27 +39,11 @@ namespace JobPortal.Controllers
             }
         }
 
-        public JsonResult GetSkills(int JPId)
-        {
-            var SkillsList = _context.Skills.Where(_ => _.JPId == JPId).ToList();
-            ViewBag.Skills = new SelectList(SkillsList, "SklId", "Name");
-            return Json(ViewBag.Skills);
-        }
+        public JsonResult GetSkills(int JPId) => Json(ViewBag.Skills = new SelectList(_context.Skills.Where(_ => _.JPId == JPId).ToList(), "SklId", "Name"));
 
-        public JsonResult GetStates(int CId)
-        {
-            var StatesList = _context.States.Where(_ => _.CId == CId).ToList();
-            ViewBag.State = new SelectList(StatesList, "SId", "Name");
-            return Json(ViewBag.State);
-        }
+        public JsonResult GetStates(int CId) => Json(ViewBag.State = new SelectList(_context.States.Where(_ => _.CId == CId).ToList(), "SId", "Name"));
 
-        public JsonResult GetCity(int StateId)
-        {
-            var CitiesList = _context.Cities.Where(_ => _.SId == StateId).ToList();
-            ViewBag.City = new SelectList(CitiesList, "CityId", "Name");
-            return Json(ViewBag.City);
-        }
-
+        public JsonResult GetCity(int StateId) => Json(ViewBag.City = new SelectList(_context.Cities.Where(_ => _.SId == StateId).ToList(), "CityId", "Name"));
 
         [HttpPost]
         public IActionResult Create(Employee employee, int id)
@@ -71,6 +51,11 @@ namespace JobPortal.Controllers
             if (id == 0)
             {
                 string fileName = FileUpload(employee);
+
+                if (TempData["Message"] != null)
+                {
+                    return RedirectToAction("Create");
+                }
 
                 employee.ImagePath = fileName;
                 _context.Employees.Add(employee);
@@ -156,27 +141,22 @@ namespace JobPortal.Controllers
 
         public IActionResult Delete(int id)
         {
-            var Employee = _context.Employees.Find(id);
-            _context.Employees.Remove(Employee);
+            _context.Employees.Remove(_context.Employees.Find(id));
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
 
         [HttpGet]
-        public IActionResult MailSent()
-        {
-            return View();
-        }
+        public IActionResult MailSent() => View();
 
         [HttpPost]
         public IActionResult MailSent(Message messageDetails)
         {
-            MailMessage message = new MailMessage();
-            SmtpClient smtpClientsmtp = new SmtpClient();
+            MailMessage message = new();
+            SmtpClient smtpClientsmtp = new();
             message.From = new MailAddress("gulshankumar.mailid01@gmail.com");
             message.To.Add(messageDetails.Email);
             message.Subject = "Test Mail";
-
 
             string MailBody = "<!DOCTYPE html>" +
   "<body style=\"display:flex; justify-content:center;\">" +
@@ -215,38 +195,36 @@ namespace JobPortal.Controllers
 
         public IActionResult ViewJobs()
         {
-            var result = (from jp in _context.JobPosts
-                          join c in _context.Companies
-                          on jp.JobProfileId equals c.JobProfileId
-                          join jpr in _context.JobProfile
-                          on jp.JobProfileId equals jpr.JPId
-                          select new
-                          {
-                              jp.MinExp,
-                              jp.MaxExp,
-                              jp.MinSal,
-                              jp.MaxSal,
-                              jp.NoOfVac,
-                              jp.NoticePeriod,
-                              jp.Comment,
-                              jp.InsertedDate,
-                              c.Id,
-                              CName = c.Name,
-                              JPName = jpr.Name
-                          }).ToList();
+            List<JobsViewJobSeekerViewModel> vm = [];
 
-            List<JobsViewJobSeekerViewModel> vm = new();
-
-            foreach (var i in result)
+            foreach (var i in (from jp in _context.JobPosts
+                              join c in _context.Companies
+                              on jp.JobProfileId equals c.JobProfileId
+                              join jpr in _context.JobProfile
+                              on jp.JobProfileId equals jpr.JPId
+                              select new
+                              {
+                                  jp.MinExp,
+                                  jp.MaxExp,
+                                  jp.MinSal,
+                                  jp.MaxSal,
+                                  jp.NoOfVac,
+                                  jp.NoticePeriod,
+                                  jp.Comment,
+                                  jp.InsertedDate,
+                                  c.Id,
+                                  CName = c.Name,
+                                  JPName = jpr.Name
+                              }).ToList())
             {
                 vm.Add(new JobsViewJobSeekerViewModel
                 {
-                    MinExp = i.MinExp,
-                    MaxExp = i.MaxExp,
-                    MinSal = i.MinSal,
-                    MaxSal = i.MaxSal,
-                    NoOfVac = i.NoOfVac,
-                    NoticePeriod = i.NoticePeriod,
+                    MinExp = (int)i.MinExp,
+                    MaxExp = (int)i.MaxExp,
+                    MinSal = (int)i.MinSal,
+                    MaxSal = (int)i.MaxSal,
+                    NoOfVac = (int)i.NoOfVac,
+                    NoticePeriod = (int)i.NoticePeriod,
                     Comment = i.Comment,
                     InsertedDate = i.InsertedDate,
                     CompanyId = i.Id,

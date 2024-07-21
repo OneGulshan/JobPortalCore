@@ -11,11 +11,7 @@ namespace JobPortal.Controllers
     {
         private readonly AppDbContext _context = context;
 
-        public IActionResult Index()
-        {
-            var result = _context.JobPosts.ToList();
-            return View(result);
-        }
+        public IActionResult Index() => View(_context.JobPosts.ToList());
 
         [HttpGet]
         public IActionResult Create(int id)
@@ -35,12 +31,7 @@ namespace JobPortal.Controllers
             }
         }
 
-        public JsonResult GetJobPost(int JPId)
-        {
-            var JobPostList = _context.Categories.Where(_ => _.CatId == JPId).ToList();
-            ViewBag.JopProfile = new SelectList(JobPostList, "JPId", "Name");
-            return Json(ViewBag.JopProfile);
-        }
+        public JsonResult GetJobPost(int JPId) => Json(ViewBag.JopProfile = new SelectList(_context.Categories.Where(_ => _.CatId == JPId).ToList(), "JPId", "Name"));
 
         [HttpPost]
         public IActionResult Create(JobPost jobPost, int id)
